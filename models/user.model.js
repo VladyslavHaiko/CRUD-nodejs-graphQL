@@ -6,7 +6,7 @@ const userSchema = new Schema({
         require: true
     },
     age: {
-        type: Number,
+        type: String,
         require: true
     },
     email: {
@@ -19,4 +19,4 @@ const userSchema = new Schema({
     },
 })
 
-module.exports.UserModel = model(`user`, userSchema);
+module.exports = model(`user`, userSchema);

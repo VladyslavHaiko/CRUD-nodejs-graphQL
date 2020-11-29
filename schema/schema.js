@@ -1,85 +1,25 @@
-const {UserModel} = require("../models/user.model");
-const {
-    GraphQLObjectType, GraphQLSchema,
-    GraphQLString, GraphQLID,
-    GraphQLList, GraphQLNonNull
-} = require(`graphql`)
+const {GraphQLObjectType, GraphQLSchema} = require("graphql");
+const {UserMutations, PostMutations} = require("../mutation");
+const {userQuery} = require('../query');
 
-
-const UserType = new GraphQLObjectType({
-    name: "User",
-    fields: () => ({
-        _id: {type: GraphQLID},
-        name: {type: GraphQLNonNull(GraphQLString)},
-        email: {type: GraphQLNonNull(GraphQLString)},
-        age: {type: GraphQLNonNull(GraphQLString)},
-        password: {type: GraphQLNonNull(GraphQLString)},
-    })
-});
 
 const Query = new GraphQLObjectType({
     name: `Query`,
     fields: {
-        getUserById: {
-            type: UserType,
-            args: {id: {type: GraphQLID}},
-            resolve(parent, args) {
-                return UserModel.findOne({_id: args.id});
-            }
-        },
-        getAllUser: {
-            type: GraphQLList(UserType),
-            resolve: (parent, args) => {
-                return UserModel.find({});
-            }
-        }
+        getUserList: userQuery.getAllUser,
+        getUserById: userQuery.getUserById,
     }
 })
+
 
 const Mutation = new GraphQLObjectType({
     name: "Mutation",
     fields: {
-        addUser: {
-            type: UserType,
-            args: {
-                name: {type: GraphQLNonNull(GraphQLString)},
-                email: {type: GraphQLNonNull(GraphQLString)},
-                age: {type: GraphQLNonNull(GraphQLString)},
-                password: {type: GraphQLNonNull(GraphQLString)},
-            },
-            resolve(parent, args) {
-                const newUser = new UserModel({
-                    name: args.name,
-                    age: args.age,
-                    email: args.email,
-                    password: args.password,
-                })
-                return newUser.save();
-            }
-        },
-        deleteUser: {
-            type: UserType,
-            args: {
-                id: {type: GraphQLID}
-            },
-            async resolve(parent, args) {
-                return UserModel.deleteOne({_id: args.id});
-            }
-        },
-        updateUser: {
-            type: UserType,
-            args: {
-                id: {type: GraphQLID},
-                name: {type: GraphQLString},
-                email: {type: GraphQLString},
-                age: {type: GraphQLString},
-                password: {type: GraphQLString},
-            },
-            resolve(parent, args) {
-                console.log(args);
-                return UserModel.update({_id: args.id}, args);
-            }
-        }
+        createUser: UserMutations.addUser,
+        deleteUser: UserMutations.deleteUser,
+        updateUser: UserMutations.updateUserWithParams,
+
+        createPost: PostMutations.addPost,
     }
 })
 
